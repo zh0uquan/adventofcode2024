@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 indoc = { workspace = true }
 regex = { workspace = true }
-nom = { workspace = true }

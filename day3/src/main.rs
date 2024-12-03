@@ -21,22 +21,24 @@ fn part1(input: &str) -> u32 {
 fn part2(input: &str) -> u32 {
     let re = Regex::new(r"mul\((\d+),(\d+)\)|don't|do"  ).expect("Invalid regex");
 
-    re.captures_iter(input)
-        .fold((0, true), |mut acc, cap| {
-            match &cap[0] {
-               "don't" => acc.1 = false,
-               "do"  => acc.1 = true,
-                _ => {
-                    if !acc.1 {
-                        return acc;
-                    } 
-                    let a: u32 = cap[1].parse().unwrap();
-                    let b: u32 = cap[2].parse().unwrap();
-                    acc.0 += a * b; 
-                }
+    re.captures_iter(input).fold(
+        (0, true), |(mut sum, mut active), cap| {
+        match &cap[0] {
+            "don't" => active = false,
+            "do" => active = true,
+            _ if active => {
+                let (a, b): (u32, u32) = (
+                    cap[1].parse().unwrap(),
+                    cap[2].parse().unwrap(),
+                );
+                sum += a * b;
             }
-            acc
-        }).0
+            _ => {
+                // do nothing
+            },
+        }
+        (sum, active)
+    }).0
 }
 
 
