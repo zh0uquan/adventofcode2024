@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "day*"
+]
+
+[workspace.dependencies]
+indoc = "*"
+nom = "7.1.3"
+lazy_static = "1.4.0"
+itertools = "0.12.0"
+rstest = "0.18.2"
+regex = "1.10.2"
+divan = "0.1.4"
+indicatif = "0.17.7"
+cached = "0"
+polars = "0.43.1"
