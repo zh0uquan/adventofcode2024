@@ -68,7 +68,7 @@ fn part2(input: &str) -> usize {
         input.lines().map(|line| line.chars().collect()).collect();
 
     let n = matrix.len();
-    let cross = ["MS".to_string(), "SM".to_string()];
+    let cross = [('M', 'S'), ('S', 'M')];
     (1..n - 1)
         .flat_map(|i| (1..n - 1).map(move |j| (i, j)))
         .map(|(i, j)| {
@@ -76,11 +76,9 @@ fn part2(input: &str) -> usize {
                 return false;
             }
             if cross.contains(
-                &(matrix[i - 1][j - 1].to_string()
-                    + &matrix[i + 1][j + 1].to_string()),
+                &(matrix[i - 1][j - 1], matrix[i + 1][j + 1])
             ) && cross.contains(
-                &(matrix[i - 1][j + 1].to_string()
-                    + &matrix[i + 1][j - 1].to_string()),
+                &(matrix[i - 1][j + 1], matrix[i + 1][j - 1])
             ) {
                 return true;
             }
