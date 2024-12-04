@@ -22,7 +22,6 @@ mod tests {
         // assert_eq!();
     }
 
-
     #[test]
     fn test_part2() {
         // assert_eq!();
