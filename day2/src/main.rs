@@ -8,50 +8,52 @@ fn main() {
 
 trait SafeCheck: Iterator<Item = isize> {
     fn safe(self) -> bool
-    where Self: Sized {
+    where
+        Self: Sized,
+    {
         self.tuple_windows()
-            .map(|(a, b)| (1 <= a.abs_diff(b) && 3 >= a.abs_diff(b), (a - b).signum()))
+            .map(|(a, b)| {
+                (1 <= a.abs_diff(b) && 3 >= a.abs_diff(b), (a - b).signum())
+            })
             .tuple_windows()
             .all(|(a, b)| a.0 == b.0 && a.0 && a.1 == b.1)
     }
 }
 
-impl<T> SafeCheck for T where T: Iterator<Item = isize> {
-
-}
-
+impl<T> SafeCheck for T where T: Iterator<Item = isize> {}
 
 fn part1(input: &str) -> usize {
-    input.lines()
-        .filter(
-            |line|
-                line.split_whitespace()
-                    .map(|e| e.parse::<isize>().unwrap())
-                    .safe()
-        ).count()
+    input
+        .lines()
+        .filter(|line| {
+            line.split_whitespace()
+                .map(|e| e.parse::<isize>().unwrap())
+                .safe()
+        })
+        .count()
 }
-
 
 fn part2(input: &str) -> usize {
-       input.lines()
-            .filter(
-                |line| {
-                    let origin: Vec<isize> = line.split_whitespace()
-                        .map(|e| e.parse::<isize>().unwrap())
-                        .collect();
-                    if origin.clone().into_iter().safe() {
-                        return true;
-                    }
-                    for i in 0..origin.len() {
-                        if [&origin[..i], &origin[i+1..]].concat().into_iter().safe() {
-                            return true;
-                        }
-                    }
-                    false
+    input
+        .lines()
+        .filter(|line| {
+            let origin: Vec<isize> = line
+                .split_whitespace()
+                .map(|e| e.parse::<isize>().unwrap())
+                .collect();
+            if origin.clone().into_iter().safe() {
+                return true;
+            }
+            for i in 0..origin.len() {
+                if [&origin[..i], &origin[i + 1..]].concat().into_iter().safe()
+                {
+                    return true;
                 }
-            ).count()
+            }
+            false
+        })
+        .count()
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -72,7 +74,6 @@ mod tests {
         };
         assert_eq!(part1(input), 2);
     }
-
 
     #[test]
     fn test_part2() {

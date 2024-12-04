@@ -7,36 +7,35 @@ fn main() {
 }
 
 fn part1(input: &str) -> usize {
-    let (mut left, mut right): (Vec<usize>, Vec<usize>) = input.lines()
-        .map(|line| 
+    let (mut left, mut right): (Vec<usize>, Vec<usize>) = input
+        .lines()
+        .map(|line| {
             line.split_whitespace()
                 .map(|e| e.parse::<usize>().unwrap())
                 .collect_tuple()
                 .unwrap()
-        )
+        })
         .unzip();
-    
+
     left.sort();
     right.sort();
-    left.iter().zip(&right).map(|(a, b)| a.abs_diff(*b) ).sum()
+    left.iter().zip(&right).map(|(a, b)| a.abs_diff(*b)).sum()
 }
 
-
 fn part2(input: &str) -> usize {
-    let (mut left, mut right): (Vec<usize>, Vec<usize>) = input.lines()
-        .map(|line| 
+    let (left, right): (Vec<usize>, Vec<usize>) = input
+        .lines()
+        .map(|line| {
             line.split_whitespace()
                 .map(|e| e.parse::<usize>().unwrap())
                 .collect_tuple()
                 .unwrap()
-        )
+        })
         .unzip();
-    
+
     let counts = right.iter().counts();
     left.iter().map(|a| counts.get(a).unwrap_or(&0) * *a).sum()
-    
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -57,7 +56,6 @@ mod tests {
         };
         assert_eq!(part1(input), 11);
     }
-
 
     #[test]
     fn test_part2() {

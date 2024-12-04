@@ -16,31 +16,29 @@ fn part1(input: &str) -> u32 {
             a * b
         })
         .sum()
-
 }
 fn part2(input: &str) -> u32 {
-    let re = Regex::new(r"mul\((\d+),(\d+)\)|don't|do"  ).expect("Invalid regex");
+    let re =
+        Regex::new(r"mul\((\d+),(\d+)\)|don't|do").expect("Invalid regex");
 
-    re.captures_iter(input).fold(
-        (0, true), |(mut sum, mut active), cap| {
-        match &cap[0] {
-            "don't" => active = false,
-            "do" => active = true,
-            _ if active => {
-                let (a, b): (u32, u32) = (
-                    cap[1].parse().unwrap(),
-                    cap[2].parse().unwrap(),
-                );
-                sum += a * b;
+    re.captures_iter(input)
+        .fold((0, true), |(mut sum, mut active), cap| {
+            match &cap[0] {
+                "don't" => active = false,
+                "do" => active = true,
+                _ if active => {
+                    let (a, b): (u32, u32) =
+                        (cap[1].parse().unwrap(), cap[2].parse().unwrap());
+                    sum += a * b;
+                }
+                _ => {
+                    // do nothing
+                }
             }
-            _ => {
-                // do nothing
-            },
-        }
-        (sum, active)
-    }).0
+            (sum, active)
+        })
+        .0
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -56,7 +54,6 @@ mod tests {
         };
         assert_eq!(part1(input), 161);
     }
-
 
     #[test]
     fn test_part2() {
