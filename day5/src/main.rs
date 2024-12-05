@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 
 fn main() {
@@ -59,32 +60,27 @@ fn part2(input: &str) -> usize {
         input.split("\n\n").collect_tuple().unwrap();
 
     let following_map = get_following_map(first_section);
+
     second_section
         .lines()
         .map(|line| {
-            let mut nums: Vec<&str> = line.split(',').collect();
-
-            let mut pos = nums.len() - 1;
-            let mut correct = true;
-            'outer: while pos != 0 {
-                for i in 0..pos {
-                    if let Some(set) = following_map.get(nums[pos]) {
-                        if set.contains(nums[i]) {
-                            correct = false;
-                            let n = nums.remove(i);
-                            nums.push(n);
-                            pos = nums.len() - 1;
-                            continue 'outer;
-                        }
-                    }
+            let nums: Vec<&str> = line.split(',').collect();
+            let mut nums_cloned = nums.clone();
+            nums_cloned.sort_by(|a, b| {
+                match following_map
+                    .get(*a)
+                    .unwrap_or(&HashSet::new())
+                    .contains(b)
+                {
+                    true => Ordering::Less,
+                    false => Ordering::Greater,
+                    _ => Ordering::Equal,
                 }
-                pos -= 1;
-            }
-
-            if correct {
+            });
+            if nums_cloned == nums {
                 return 0;
             }
-            nums[nums.len() / 2].parse::<usize>().unwrap()
+            nums_cloned[nums_cloned.len() / 2].parse::<usize>().unwrap()
         })
         .sum()
 }
