@@ -74,7 +74,6 @@ fn part2(input: &str) -> usize {
                 {
                     true => Ordering::Less,
                     false => Ordering::Greater,
-                    _ => Ordering::Equal,
                 }
             });
             if nums_cloned == nums {
