@@ -75,11 +75,10 @@ fn part2(input: &str) -> usize {
             if matrix[i][j] != 'A' {
                 return false;
             }
-            if cross.contains(
-                &(matrix[i - 1][j - 1], matrix[i + 1][j + 1])
-            ) && cross.contains(
-                &(matrix[i - 1][j + 1], matrix[i + 1][j - 1])
-            ) {
+            if cross.contains(&(matrix[i - 1][j - 1], matrix[i + 1][j + 1]))
+                && cross
+                    .contains(&(matrix[i - 1][j + 1], matrix[i + 1][j - 1]))
+            {
                 return true;
             }
             false
