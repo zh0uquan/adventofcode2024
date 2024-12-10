@@ -12,7 +12,7 @@ fn mirror_point(point: (usize, usize), reference: (usize, usize)) -> Option<(usi
 
     if 2 * rx >= x && 2 * ry >= y {
         return Some((2 * rx - x, 2 * ry - y));
-    } 
+    }
     None
 }
 
@@ -80,7 +80,7 @@ fn solve(input: &str) -> (usize, usize) {
     }
     // println!("{:?} {:?}", antinodes_updated, antinodes_updated.len());
     (antinodes.len(), antinodes_updated.len())
-    
+
 }
 
 
@@ -90,7 +90,7 @@ mod tests {
     use indoc::indoc;
 
     #[test]
-    fn test_part1() {
+    fn test_solve() {
         let input = indoc! {
             r#"
             ............
@@ -110,24 +110,4 @@ mod tests {
         assert_eq!(solve(input), (14, 34));
     }
 
-
-    #[test]
-    fn test_part2() {
-        let input = indoc! {
-            r#"
-            T.........
-            ...T......
-            .T........
-            ..........
-            ...x.......
-            ..........
-            ..........
-            ..........
-            ..........
-            ..........
-            "#
-        };
-        solve(input);
-        // assert_eq!();
-    }
 }
