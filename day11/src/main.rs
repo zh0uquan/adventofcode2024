@@ -15,8 +15,8 @@ fn apply_rule(n: usize) -> Vec<usize> {
 
             let (first_half, second_half) = n_str.split_at(mid);
             vec![first_half.parse().unwrap(), second_half.parse().unwrap()]
-        },
-        _ => vec![n * 2024]
+        }
+        _ => vec![n * 2024],
     }
 }
 
@@ -36,7 +36,8 @@ fn rec(stones: Vec<usize>, blinks_left: usize) -> usize {
 }
 
 fn part1(input: &str, n: usize) -> usize {
-    let init: Vec<usize> = input.split_whitespace()
+    let init: Vec<usize> = input
+        .split_whitespace()
         .map(|n| n.parse::<usize>().unwrap())
         .collect();
     let mut blink = init;
@@ -47,7 +48,8 @@ fn part1(input: &str, n: usize) -> usize {
 }
 
 fn part2(input: &str, n: usize) -> usize {
-    let init: Vec<usize> = input.split_whitespace()
+    let init: Vec<usize> = input
+        .split_whitespace()
         .map(|n| n.parse::<usize>().unwrap())
         .collect();
     rec(init, n)
@@ -62,9 +64,7 @@ mod tests {
     fn test_part1() {
         assert_eq!(part1("125 17", 6), 22);
         assert_eq!(part1("125 17", 25), 55312);
-
     }
-
 
     #[test]
     fn test_part2() {

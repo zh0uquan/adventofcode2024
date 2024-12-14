@@ -1,6 +1,6 @@
-use std::cmp::Ordering;
 use itertools::Itertools;
 use sorted_vec::SortedVec;
+use std::cmp::Ordering;
 
 fn main() {
     let input = include_str!("input.txt");
@@ -8,18 +8,17 @@ fn main() {
     println!("{:?}", part2(input));
 }
 
-
 #[derive(Debug, Clone)]
 struct File {
     address: usize,
     size: usize,
-    id: usize
+    id: usize,
 }
 
 #[derive(Debug, Clone, Eq)]
 struct Space {
     address: usize,
-    size: usize
+    size: usize,
 }
 
 impl Ord for Space {
@@ -40,7 +39,6 @@ impl PartialEq for Space {
     }
 }
 
-
 fn get_disk_map(input: &str) -> (Vec<String>, Vec<File>, SortedVec<Space>) {
     let mut address = 0;
     input.trim().bytes().chunks(2).into_iter().enumerate().fold(
@@ -59,7 +57,8 @@ fn get_disk_map(input: &str) -> (Vec<String>, Vec<File>, SortedVec<Space>) {
                     address += file_size;
                 }
                 2 => {
-                    let (file_size, space_size) = (chunk[0] as usize, chunk[1] as usize);
+                    let (file_size, space_size) =
+                        (chunk[0] as usize, chunk[1] as usize);
                     s.extend(vec![i.to_string(); file_size]);
                     files.push(File {
                         address,
@@ -68,7 +67,7 @@ fn get_disk_map(input: &str) -> (Vec<String>, Vec<File>, SortedVec<Space>) {
                     });
                     address += file_size;
                     s.extend(vec![".".to_string(); space_size]);
-                    spaces.push( Space {
+                    spaces.push(Space {
                         address,
                         size: space_size,
                     });
@@ -104,14 +103,14 @@ fn part1(input: &str) -> usize {
 
 fn part2(input: &str) -> usize {
     let (mut _map, mut files, mut spaces) = get_disk_map(input);
-    
+
     while !spaces.is_empty() {
         let mut space = spaces.pop().unwrap();
         for file in files.iter_mut().rev() {
             if file.size <= space.size && file.address > space.address {
                 spaces.push(Space {
                     address: file.address,
-                    size: file.size
+                    size: file.size,
                 });
                 file.address = space.address;
                 space.address += file.size;
@@ -121,14 +120,12 @@ fn part2(input: &str) -> usize {
     }
     files
         .iter()
-        .map(|file| (file.address..file.address + file.size)
-            .map(|n| {
-                n * file.id
-            })
-            .sum::<usize>())
+        .map(|file| {
+            (file.address..file.address + file.size)
+                .map(|n| n * file.id)
+                .sum::<usize>()
+        })
         .sum()
-
-
 }
 
 #[cfg(test)]
