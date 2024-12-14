@@ -51,7 +51,7 @@ fn solve(input: &str) -> (usize, usize) {
     let (mut start_i, mut start_j): (usize, usize) = (0, 0);
     let (mut di, mut dj): (isize, isize) = (-1, 0);
     let mut visited = HashSet::new();
-    
+
     for (i, j) in (0..m).flat_map(|i| (0..n).map(move |j| (i, j))) {
         if matrix[i][j] == '^' {
             (start_i, start_j) = (i, j);
