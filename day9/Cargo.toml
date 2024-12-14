@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 indoc = { workspace = true }
+sorted-vec = { workspace = true }
 itertools = { workspace = true }

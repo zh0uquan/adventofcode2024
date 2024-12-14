@@ -86,6 +86,7 @@ version = "0.1.0"
 dependencies = [
  "indoc",
  "itertools",
+ "sorted-vec",
 ]
 
 [[package]]
@@ -143,3 +144,9 @@ name = "regex-syntax"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
+
+[[package]]
+name = "sorted-vec"
+version = "0.8.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f64b077cc81ab5f1209bb44c6530a3277261aeaa5405111d48326897306918b"
