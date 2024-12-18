@@ -1,5 +1,5 @@
 [package]
-name = "day1"
+name = "day16"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 indoc = { workspace = true }
-itertools = { workspace = true }
+cached = { workspace = true }
