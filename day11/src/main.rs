@@ -41,7 +41,7 @@ fn part1(input: &str, n: usize) -> usize {
         .map(|n| n.parse::<usize>().unwrap())
         .collect();
     let mut blink = init;
-    for i in 0..n {
+    for _i in 0..n {
         blink = blink.iter().flat_map(|n| apply_rule(*n)).collect();
     }
     blink.len()

@@ -3,7 +3,6 @@ use std::collections::{HashMap, HashSet};
 fn main() {
     let input = include_str!("input.txt");
     println!("{:?}", solve(input));
-    println!("{:?}", part2(input));
 }
 
 fn find_islands(
@@ -110,8 +109,8 @@ fn solve(input: &str) -> (usize, usize) {
     println!("{:?}", islands);
 
     let part1 = islands
-        .iter()
-        .map(|(ch, islands)| {
+        .values()
+        .map(|islands| {
             islands
                 .iter()
                 .map(move |island| {
@@ -144,8 +143,6 @@ fn solve(input: &str) -> (usize, usize) {
 
     (part1, part2)
 }
-
-fn part2(input: &str) {}
 
 #[cfg(test)]
 mod tests {
