@@ -4,10 +4,9 @@ use nom::character::complete::{alpha1, newline, u32 as nom_u32};
 use nom::multi::separated_list1;
 use nom::sequence::{preceded, separated_pair};
 use nom::IResult;
-use z3::ast::Bool;
 use z3::{
     ast::{Ast, BV},
-    Config, Context, Optimize, SatResult, Solver,
+    Config, Context, Optimize, SatResult,
 };
 
 fn main() {
@@ -159,7 +158,9 @@ fn part2() {
     let n = BV::new_const(&ctx, "n", 64);
 
     let mut a = n.clone();
+    #[allow(unused_assignments)]
     let mut b = BV::from_u64(&ctx, 0, 64);
+    #[allow(unused_assignments)]
     let mut c = BV::from_u64(&ctx, 0, 64);
 
     let x_values = [2, 4, 1, 3, 7, 5, 4, 2, 0, 3, 1, 5, 5, 5, 3, 0];
