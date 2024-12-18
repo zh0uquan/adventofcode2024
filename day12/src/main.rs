@@ -109,8 +109,13 @@ fn solve(input: &str) -> (usize, usize) {
     println!("{:?}", islands);
 
     let part1 = islands
+<<<<<<< Updated upstream
         .values()
         .map(|islands| {
+=======
+        .iter()
+        .map(|(_ch, islands)| {
+>>>>>>> Stashed changes
             islands
                 .iter()
                 .map(move |island| {
@@ -143,6 +148,7 @@ fn solve(input: &str) -> (usize, usize) {
 
     (part1, part2)
 }
+
 
 #[cfg(test)]
 mod tests {

@@ -58,7 +58,6 @@ fn part2(input: &str, n: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn test_part1() {
         assert_eq!(part1("125 17", 6), 22);
