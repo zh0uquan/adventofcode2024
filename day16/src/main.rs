@@ -106,7 +106,7 @@ impl Maze {
         let mut dp: HashMap<Step, usize> = HashMap::new();
         let mut heap = BinaryHeap::new();
         let mut best = HashSet::new();
-        let mut path = vec![self.start_pos];
+        let path = vec![self.start_pos];
         let mut min_score = usize::MAX;
 
         heap.push(Reverse((0, step, path)));

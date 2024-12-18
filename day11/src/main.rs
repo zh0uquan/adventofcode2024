@@ -58,7 +58,6 @@ fn part2(input: &str, n: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use indoc::indoc;
 
     #[test]
     fn test_part1() {
