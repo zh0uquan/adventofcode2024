@@ -4,13 +4,19 @@ use nom::character::complete::{alpha1, newline, u32 as nom_u32};
 use nom::multi::separated_list1;
 use nom::sequence::{preceded, separated_pair};
 use nom::IResult;
+use z3::ast::Bool;
+use z3::{
+    ast::{Ast, BV},
+    Config, Context, Optimize, SatResult, Solver,
+};
 
 fn main() {
     let input = include_str!("input.txt");
     println!("{:?}", part1(input));
-    // println!("{:?}", part2(input));
+    println!("{:?}", part2());
 }
 
+#[derive(Debug, PartialEq)]
 enum Instruction {
     Adv,
     Bxl,
@@ -62,24 +68,25 @@ impl Computer {
             _ => panic!("disco!"),
         }
     }
-    fn run(&mut self) {
+
+    fn run(&mut self) -> bool {
         while self.pointer < self.programs.len() {
             let (opcode, operand) = self.programs
                 [self.pointer..self.pointer + 2]
                 .iter()
+                .copied()
                 .collect_tuple()
                 .unwrap();
-
-            self.op(*opcode, *operand);
+            self.op(opcode, operand);
             if !self.skip_increase {
                 self.pointer += 2;
             }
             self.skip_increase = false;
         }
+        self.output == self.programs
     }
 
     fn op(&mut self, opcode: u32, operand: u32) {
-        // println!("{opcode} {operand}");
         let instruction = Instruction::new(opcode);
         match instruction {
             Instruction::Adv => {
@@ -123,22 +130,86 @@ fn parse_register(input: &str) -> IResult<&str, Vec<(&str, u32)>> {
 fn parse_program(input: &str) -> IResult<&str, Vec<u32>> {
     preceded(tag("Program: "), separated_list1(tag(","), nom_u32))(input)
 }
-fn part1(input: &str) -> String {
+
+fn parse_computer(input: &str) -> Computer {
     let (register, program) = input.split("\n\n").collect_tuple().unwrap();
     let register = parse_register(register).unwrap().1;
     let instructions: Vec<u32> = parse_program(program).unwrap().1;
 
-    let mut computer = Computer {
+    Computer {
         a: register[0].1,
         b: register[1].1,
         c: register[2].1,
         programs: instructions,
         ..Computer::default()
-    };
+    }
+}
 
+fn part1(input: &str) -> String {
+    let mut computer = parse_computer(input);
     computer.run();
-
     computer.output.iter().join(",").to_string()
+}
+
+fn part2() {
+    let cfg = Config::new();
+    let ctx = Context::new(&cfg);
+    let opt = Optimize::new(&ctx);
+
+    let n = BV::new_const(&ctx, "n", 64);
+
+    let mut a = n.clone();
+    let mut b = BV::from_u64(&ctx, 0, 64);
+    let mut c = BV::from_u64(&ctx, 0, 64);
+
+    let x_values = [2, 4, 1, 3, 7, 5, 4, 2, 0, 3, 1, 5, 5, 5, 3, 0];
+
+    for x in x_values {
+        // b = a % 8
+        b = a.bvurem(&BV::from_u64(&ctx, 8, 64));
+
+        // b = b ^ 3
+        b = b.bvxor(&BV::from_u64(&ctx, 3, 64));
+
+        // c = a / (1 << b)
+        c = a.bvudiv(&BV::from_u64(&ctx, 1, 64).bvshl(&b));
+
+        // b = b ^ c
+        b = b.bvxor(&c);
+
+        // a = a / 8
+        a = a.bvudiv(&BV::from_u64(&ctx, 8, 64));
+
+        // b = a ^ 5
+        b = b.bvxor(&BV::from_u64(&ctx, 5, 64));
+
+        // Add constraint that (b % 8) equals x
+        opt.assert(
+            &b.bvurem(&BV::from_u64(&ctx, 8, 64))
+                ._eq(&BV::from_u64(&ctx, x as u64, 64)),
+        );
+    }
+
+    // Add constraint that a == 0
+    opt.assert(&a._eq(&BV::from_u64(&ctx, 0, 64)));
+
+    // Minimize n
+    opt.minimize(&n);
+
+    // Check satisfiability
+    match opt.check(&[]) {
+        SatResult::Sat => {
+            if let Some(model) = opt.get_model() {
+                if let Some(n_value) = model.eval(&n, true) {
+                    println!("Found value: {}", n_value.as_u64().unwrap());
+                } else {
+                    println!("Could not evaluate the value of 'n'.");
+                }
+            }
+        }
+        SatResult::Unsat => println!("Unsatisfiable"),
+        SatResult::Unknown => println!("Unknown"),
+    }
 }
 
 #[cfg(test)]
@@ -223,12 +294,18 @@ mod tests {
             Program: 0,1,5,4,3,0
             "#
         };
-        let computer = Computer::default();
-        assert_eq!(part1(input), "4,6,3,5,6,3,5,2,1,0")
-    }
+        assert_eq!(part1(input), "4,6,3,5,6,3,5,2,1,0");
 
-    #[test]
-    fn test_part2() {
-        // assert_eq!();
+        let input1 = indoc! {
+            r#"
+            Register A: 117440
+            Register B: 0
+            Register C: 0
+
+            Program: 0,3,5,4,3,0
+            "#
+        };
+
+        assert_eq!(part1(input1), "0,3,5,4,3,0")
     }
 }

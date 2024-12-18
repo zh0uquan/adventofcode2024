@@ -9,3 +9,4 @@ edition = "2021"
 indoc = { workspace = true }
 nom = { workspace = true }
 itertools = { workspace = true }
+z3 = "*"
