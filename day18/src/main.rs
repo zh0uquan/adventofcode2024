@@ -104,7 +104,7 @@ fn parse_bytes(input: &str) -> Vec<Coord> {
 }
 
 fn run<const HEIGHT: usize, const WIDTH: usize>(
-    matrix: Matrix<Memory, HEIGHT, WIDTH>,
+    matrix: &Matrix<Memory, HEIGHT, WIDTH>,
 ) -> usize {
     let start = (0, 0);
     let end = (HEIGHT - 1, WIDTH - 1);
@@ -149,15 +149,27 @@ fn run<const HEIGHT: usize, const WIDTH: usize>(
 fn part1(input: &str) -> usize {
     let mut matrix: Matrix<Memory, 71, 71> = Matrix::default();
     let bytes = parse_bytes(input);
-    // println!("{:?}", &bytes[..1024]);
     for byte in &bytes[..1024] {
         matrix[*byte] = Memory::Corrupted;
     }
-    println!("{matrix}");
-    run(matrix)
+    run(&matrix)
 }
 
-fn part2(input: &str) {}
+fn part2(input: &str) {
+    let bytes = parse_bytes(input);
+    for n in 1024..bytes.len() {
+        println!("{:?}", n);
+        let mut matrix: Matrix<Memory, 71, 71> = Matrix::default();
+        for byte in &bytes[..n] {
+            matrix[*byte] = Memory::Corrupted;
+        }
+        if run(&matrix) == usize::MAX {
+            println!("{n}\n {:?}", bytes[n - 1]);
+            println!("{}", matrix);
+            break;
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -165,7 +177,7 @@ mod tests {
     use indoc::indoc;
 
     #[test]
-    fn test_part1() {
+    fn test_example() {
         let input = indoc! {
             r#"
             5,4
@@ -197,15 +209,21 @@ mod tests {
         };
         let mut matrix: Matrix<Memory, 7, 7> = Matrix::default();
         let bytes = parse_bytes(input);
-        println!("{:?}", &bytes[..12]);
         for byte in &bytes[..12] {
             matrix[*byte] = Memory::Corrupted;
         }
-        assert_eq!(run(matrix), 22);
-    }
+        assert_eq!(run(&matrix), 22);
 
-    #[test]
-    fn test_part2() {
-        // assert_eq!();
+        for n in 12..bytes.len() {
+            let mut matrix: Matrix<Memory, 7, 7> = Matrix::default();
+            for byte in &bytes[..n] {
+                matrix[*byte] = Memory::Corrupted;
+            }
+            if run(&matrix) == usize::MAX {
+                println!("{n}\n {:?}", bytes[n - 1]);
+                println!("{}", matrix);
+                break;
+            }
+        }
     }
 }
