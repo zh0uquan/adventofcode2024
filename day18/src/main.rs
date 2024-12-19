@@ -14,20 +14,20 @@ struct Matrix<T, const HEIGHT: usize, const WIDTH: usize> {
     matrix: Vec<Vec<T>>,
 }
 
-impl<const HEIGHT: usize, const WIDTH: usize> Index<(usize, usize)>
-    for Matrix<Memory, HEIGHT, WIDTH>
+impl<T, const HEIGHT: usize, const WIDTH: usize> Index<(usize, usize)>
+    for Matrix<T, HEIGHT, WIDTH>
 {
-    type Output = Memory;
+    type Output = T;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
         &self.matrix[index.0][index.1]
     }
 }
 
-impl<const HEIGHT: usize, const WIDTH: usize> IndexMut<(usize, usize)>
-    for Matrix<Memory, HEIGHT, WIDTH>
+impl<T, const HEIGHT: usize, const WIDTH: usize> IndexMut<(usize, usize)>
+    for Matrix<T, HEIGHT, WIDTH>
 {
-    fn index_mut(&mut self, index: (usize, usize)) -> &mut Memory {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut T {
         &mut self.matrix[index.0][index.1]
     }
 }
