@@ -47,7 +47,7 @@ mod tests {
     use indoc::indoc;
 
     #[test]
-    fn test_part1() {
+    fn test_solve() {
         let input = indoc! {
             r#"
             r, wr, b, g, bwu, rb, gb, br
@@ -63,10 +63,5 @@ mod tests {
             "#
         };
         assert_eq!(solve(input), (6, 16));
-    }
-
-    #[test]
-    fn test_part2() {
-        // assert_eq!();
     }
 }
