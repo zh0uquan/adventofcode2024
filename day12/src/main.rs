@@ -144,7 +144,6 @@ fn solve(input: &str) -> (usize, usize) {
     (part1, part2)
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
