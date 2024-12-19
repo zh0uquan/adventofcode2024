@@ -3,8 +3,7 @@ use itertools::Itertools;
 
 fn main() {
     let input = include_str!("input.txt");
-    println!("{:?}", part1(input));
-    println!("{:?}", part2(input));
+    println!("{:?}", solve(input));
 }
 
 #[cached(
@@ -26,19 +25,21 @@ fn word_search<'a>(patterns: &[&'a str], word: &'a str) -> usize {
     total
 }
 
-fn part1(input: &str) -> usize {
+fn solve(input: &str) -> (usize, usize) {
     let (patterns, towels): (&str, &str) =
         input.split("\n\n").collect_tuple().unwrap();
     let patterns: Vec<&str> = patterns.split(", ").collect();
     let towels: Vec<&str> = towels.lines().collect();
 
-    towels
+    let valid_towels: Vec<usize> = towels
         .iter()
-        .filter(|towel| word_search(&patterns, towel) > 0)
-        .count()
+        .map(|towel| word_search(&patterns, towel))
+        .collect();
+    (
+        valid_towels.iter().filter(|&&n| n > 0).count(),
+        valid_towels.iter().sum(),
+    )
 }
-
-fn part2(input: &str) {}
 
 #[cfg(test)]
 mod tests {
@@ -61,7 +62,7 @@ mod tests {
             bbrgwb
             "#
         };
-        assert_eq!(part1(input), 6);
+        assert_eq!(solve(input), (6, 16));
     }
 
     #[test]
