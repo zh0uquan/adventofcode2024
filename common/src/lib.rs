@@ -1,8 +1,9 @@
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 
+#[derive(Clone)]
 pub struct Matrix<T> {
-    matrix: Vec<Vec<T>>,
+    pub matrix: Vec<Vec<T>>,
     pub height: usize,
     pub width: usize,
 }
@@ -34,6 +35,39 @@ impl<T: Clone + Default> Matrix<T> {
     /// Checks if the given row and column are within bounds.
     pub fn in_bounds(&self, row: usize, col: usize) -> bool {
         row < self.height && col < self.width
+    }
+
+    pub fn find(&self, value: &T) -> Option<(usize, usize)>
+    where
+        T: PartialEq,
+    {
+        for (i, row) in self.matrix.iter().enumerate() {
+            for (j, cell) in row.iter().enumerate() {
+                if cell == value {
+                    return Some((i, j));
+                }
+            }
+        }
+        None
+    }
+
+    pub fn from<F>(input: &str, parser_func: F) -> Self
+    where
+        F: Fn(char) -> T + Copy,
+    {
+        let matrix: Vec<Vec<T>> = input
+            .lines()
+            .map(|line| line.chars().map(parser_func).collect())
+            .collect();
+
+        let height = matrix.len();
+        let width = matrix[0].len();
+
+        Self {
+            matrix,
+            height,
+            width,
+        }
     }
 }
 
