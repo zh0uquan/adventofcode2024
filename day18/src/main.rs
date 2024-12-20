@@ -1,3 +1,4 @@
+use common::Matrix;
 use itertools::Itertools;
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
@@ -8,67 +9,6 @@ fn main() {
     let input = include_str!("input.txt");
     println!("{:?}", part1(input));
     println!("{:?}", part2(input));
-}
-
-struct Matrix<T, const HEIGHT: usize, const WIDTH: usize> {
-    matrix: Vec<Vec<T>>,
-}
-
-impl<T, const HEIGHT: usize, const WIDTH: usize> Index<(usize, usize)>
-    for Matrix<T, HEIGHT, WIDTH>
-{
-    type Output = T;
-
-    fn index(&self, index: (usize, usize)) -> &Self::Output {
-        &self.matrix[index.0][index.1]
-    }
-}
-
-impl<T, const HEIGHT: usize, const WIDTH: usize> IndexMut<(usize, usize)>
-    for Matrix<T, HEIGHT, WIDTH>
-{
-    fn index_mut(&mut self, index: (usize, usize)) -> &mut T {
-        &mut self.matrix[index.0][index.1]
-    }
-}
-
-impl<T: Clone + Default, const HEIGHT: usize, const WIDTH: usize>
-    Matrix<T, HEIGHT, WIDTH>
-{
-    pub fn new() -> Self {
-        Self {
-            matrix: vec![vec![T::default(); WIDTH]; HEIGHT],
-        }
-    }
-
-    pub fn in_bounds(&self, row: usize, col: usize) -> bool {
-        row < HEIGHT && col < WIDTH
-    }
-}
-
-impl<
-        T: Clone + Default + Display,
-        const HEIGHT: usize,
-        const WIDTH: usize,
-    > Display for Matrix<T, HEIGHT, WIDTH>
-{
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        for row in &self.matrix {
-            for cell in row.iter() {
-                write!(f, "{}", cell)?;
-            }
-            writeln!(f)?;
-        }
-        Ok(())
-    }
-}
-
-impl<T: Clone + Default, const HEIGHT: usize, const WIDTH: usize> Default
-    for Matrix<T, HEIGHT, WIDTH>
-{
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -103,11 +43,9 @@ fn parse_bytes(input: &str) -> Vec<Coord> {
         .collect()
 }
 
-fn run<const HEIGHT: usize, const WIDTH: usize>(
-    matrix: &Matrix<Memory, HEIGHT, WIDTH>,
-) -> usize {
+fn run(matrix: &Matrix<Memory>) -> usize {
     let start = (0, 0);
-    let end = (HEIGHT - 1, WIDTH - 1);
+    let end = (matrix.height - 1, matrix.width - 1);
 
     let path: Vec<Coord> = vec![start];
     let mut queue = BinaryHeap::new();
@@ -147,7 +85,7 @@ fn run<const HEIGHT: usize, const WIDTH: usize>(
 }
 
 fn part1(input: &str) -> usize {
-    let mut matrix: Matrix<Memory, 71, 71> = Matrix::default();
+    let mut matrix: Matrix<Memory> = Matrix::new(71, 71);
     let bytes = parse_bytes(input);
     for byte in &bytes[..1024] {
         matrix[*byte] = Memory::Corrupted;
@@ -159,7 +97,7 @@ fn part2(input: &str) {
     let bytes = parse_bytes(input);
     for n in 1024..bytes.len() {
         println!("{:?}", n);
-        let mut matrix: Matrix<Memory, 71, 71> = Matrix::default();
+        let mut matrix: Matrix<Memory> = Matrix::new(71, 71);
         for byte in &bytes[..n] {
             matrix[*byte] = Memory::Corrupted;
         }
@@ -207,7 +145,7 @@ mod tests {
             2,0
             "#
         };
-        let mut matrix: Matrix<Memory, 7, 7> = Matrix::default();
+        let mut matrix: Matrix<Memory> = Matrix::new(7, 7);
         let bytes = parse_bytes(input);
         for byte in &bytes[..12] {
             matrix[*byte] = Memory::Corrupted;
@@ -215,7 +153,7 @@ mod tests {
         assert_eq!(run(&matrix), 22);
 
         for n in 12..bytes.len() {
-            let mut matrix: Matrix<Memory, 7, 7> = Matrix::default();
+            let mut matrix: Matrix<Memory> = Matrix::new(7, 7);
             for byte in &bytes[..n] {
                 matrix[*byte] = Memory::Corrupted;
             }

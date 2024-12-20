@@ -121,6 +121,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "common"
+version = "0.1.0"
+
+[[package]]
 name = "darling"
 version = "0.20.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -231,6 +235,7 @@ dependencies = [
 name = "day18"
 version = "0.1.0"
 dependencies = [
+ "common",
  "indoc",
  "itertools",
 ]
@@ -250,6 +255,14 @@ version = "0.1.0"
 dependencies = [
  "indoc",
  "itertools",
+]
+
+[[package]]
+name = "day20"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "indoc",
 ]
 
 [[package]]
