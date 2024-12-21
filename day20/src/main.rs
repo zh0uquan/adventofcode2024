@@ -23,7 +23,7 @@ impl Display for Tile {
             Tile::End => "E",
             Tile::Track => ".",
             Tile::Wall => "#",
-            Tile::Char(char) => &*format!("{char}"),
+            Tile::Char(char) => return write!(f, "{}", char),
         };
         write!(f, "{}", char_representation)
     }
@@ -43,86 +43,29 @@ type Coord = (usize, usize);
 
 fn main() {
     let input = include_str!("input.txt");
-    println!("{:?}", part1(input));
-    println!("{:?}", part2(input));
-}
-
-#[derive(Debug)]
-struct Cheat {
-    start: Coord,
-    end: Coord,
-    before_start: Vec<Coord>,
-    after_end: Vec<Coord>,
+    println!("{:?}", solve(input));
 }
 
 trait MatrixCheat {
-    fn find_cheats(&self) -> Vec<Cheat>;
-    fn find_enclosed_walls(&self) -> Vec<Coord>;
+    fn find_next(&self, pos: Coord, dir: (isize, isize)) -> Option<Coord>;
     fn get_tile_neighbours(&self, pos: Coord) -> Vec<Coord>;
 }
 
 impl MatrixCheat for Matrix<Tile> {
-    fn find_cheats(&self) -> Vec<Cheat> {
-        let mut cheats = Vec::new();
-        let enclosed_walls: Vec<Coord> = self.find_enclosed_walls();
-
-        for (i, j) in (1..self.height - 1)
-            .flat_map(|i| (1..self.width - 1).map(move |j| (i, j)))
-        {
-            if self.matrix[i][j] != Tile::Wall {
-                continue;
+    fn find_next(
+        &self,
+        pos: Coord,
+        dir: (isize, isize),
+    ) -> Option<(usize, usize)> {
+        let ni = pos.0.checked_add_signed(dir.0);
+        let nj = pos.1.checked_add_signed(dir.1);
+        if let (Some(ni), Some(nj)) = (ni, nj) {
+            if !self.in_bounds(ni, nj) {
+                return None;
             }
-            let start = (i, j);
-            let ends: Vec<Coord> = self
-                .get_tile_neighbours(start)
-                .into_iter()
-                .filter(|&pos| !enclosed_walls.contains(&pos))
-                .collect();
-            for &end in ends.iter() {
-                let after_end: Vec<Coord> = self
-                    .get_tile_neighbours(end)
-                    .into_iter()
-                    .filter(|&pos| {
-                        !enclosed_walls.contains(&pos) && pos != start
-                    })
-                    .collect();
-                let before_start = ends
-                    .clone()
-                    .into_iter()
-                    .filter(|&pos| pos != end)
-                    .collect();
-                cheats.push(Cheat {
-                    start,
-                    end,
-                    before_start,
-                    after_end,
-                })
-            }
+            return Some((ni, nj));
         }
-        cheats
-    }
-
-    fn find_enclosed_walls(&self) -> Vec<Coord> {
-        (0..self.height)
-            .flat_map(|i| (0..self.width).map(move |j| (i, j)))
-            .filter(|&(i, j)| {
-                if i == 0
-                    || i == self.height - 1
-                    || j == 0
-                    || j == self.width - 1
-                {
-                    return true;
-                }
-                if self.matrix[i][j] != Tile::Wall {
-                    return false;
-                }
-                DIRECTIONS.iter().all(|&(di, dj)| {
-                    self.matrix[(i as isize + di) as usize]
-                        [(j as isize + dj) as usize]
-                        == Tile::Wall
-                })
-            })
-            .collect()
+        None
     }
 
     fn get_tile_neighbours(&self, pos: Coord) -> Vec<Coord> {
@@ -139,9 +82,12 @@ impl MatrixCheat for Matrix<Tile> {
             .collect()
     }
 }
+fn manhattan_distance(pos1: Coord, pos2: Coord) -> usize {
+    pos1.0.abs_diff(pos2.0) + pos1.1.abs_diff(pos2.1)
+}
 
-fn part1(input: &str) -> usize {
-    let mut matrix: Matrix<Tile> = Matrix::from(input, parse);
+fn solve(input: &str) -> (usize, usize) {
+    let matrix: Matrix<Tile> = Matrix::from(input, parse);
     let start = matrix.find(&Tile::Start).unwrap();
     let end = matrix.find(&Tile::End).unwrap();
 
@@ -172,50 +118,92 @@ fn part1(input: &str) -> usize {
         }
     }
 
-    for coord in matrix.find_enclosed_walls() {
-        matrix[coord] = Tile::Char('D');
-    }
-    println!("{}", matrix);
-
-    matrix.find_cheats();
-    let mut counter: HashMap<usize, usize> = HashMap::new();
-    for cheat in matrix.find_cheats() {
-        let mut matrix = matrix.clone();
-        matrix[cheat.start] = Tile::Char('1');
-        matrix[cheat.end] = Tile::Char('2');
-        for &before_wall in cheat.before_start.iter() {
-            for &after_wall in cheat.after_end.iter() {
-                if before_wall.0 != after_wall.0
-                    && before_wall.1 != after_wall.1
-                {
-                    continue;
-                }
-
-                if let (Some(d1), Some(d2)) =
-                    (distance.get(&before_wall), distance.get(&after_wall))
-                {
-                    if *d2 >= *d1 + 2 {
-                        matrix[before_wall] = Tile::Char('B');
-                        matrix[after_wall] = Tile::Char('A');
-                        println!("distance saved: {}", d2 - d1 - 3);
-                        println!("{}", matrix);
-
-                        *counter.entry(d2 - d1 - 3).or_default() += 1;
+    let mut cheats = vec![];
+    for (&coord, &coord_distance) in distance.iter() {
+        for &dir in DIRECTIONS.iter() {
+            if let Some(start) = matrix.find_next(coord, dir) {
+                if matrix[start] == Tile::Wall {
+                    if let Some(end) = matrix.find_next(start, dir) {
+                        // coord => start => end => out
+                        if matrix[end] == Tile::Wall {
+                            if let Some(out) = matrix.find_next(end, dir) {
+                                if let Some(&d_out) = distance.get(&out) {
+                                    cheats.push((
+                                        start,
+                                        end,
+                                        d_out
+                                            - coord_distance
+                                            - manhattan_distance(coord, out),
+                                    ));
+                                    continue;
+                                }
+                            }
+                        }
+                        // coord => start => end
+                        if let Some(&d_end) = distance.get(&end) {
+                            if d_end < coord_distance {
+                                continue;
+                            }
+                            cheats.push((
+                                start,
+                                end,
+                                d_end
+                                    - coord_distance
+                                    - manhattan_distance(coord, end),
+                            ));
+                            continue;
+                        }
                     }
                 }
             }
         }
     }
-    println!("{:?}", counter);
-    println!("{:?}", distance);
 
-    usize::MAX
+    // for cheat in cheats.iter() {
+    //     let mut matrix = matrix.clone();
+    //     matrix[cheat.0] = Tile::Char('1');
+    //     matrix[cheat.1] = Tile::Char('2');
+    //     println!("distance saved: {}", cheat.2);
+    //     println!("{}", matrix);
+    // }
+    let counter: HashMap<usize, usize> =
+        cheats.iter().fold(HashMap::new(), |mut map, c| {
+            *map.entry(c.2).or_default() += 1;
+            map
+        });
+    let part1 = counter
+        .iter()
+        .filter_map(|(&pico, &n)| {
+            if pico >= 100 {
+                return Some(n);
+            }
+            None
+        })
+        .sum();
 
-    // println!("{:?} {:?}", score, path);
-    // println!("{:?}", visited.get(&(7,4)).unwrap());
+    let mut cheats: HashMap<usize, usize> = HashMap::new();
+    for (&pos1, &distance1) in distance.iter() {
+        for (&pos2, &distance2) in distance.iter() {
+            if pos1 == pos2 {
+                continue;
+            }
+            let pico = manhattan_distance(pos1, pos2);
+            if pico <= 20 && distance2 > distance1 + pico {
+                *cheats.entry(distance2 - distance1 - pico).or_default() += 1
+            }
+        }
+    }
+
+    // println!("{:?}", cheats);
+    for (key, value) in cheats.iter().sorted() {
+        if *key < 50 {
+            continue;
+        }
+        println!("There are {value} cheats that save {key} picoseconds.")
+    }
+
+    (part1, 1234)
 }
-
-fn part2(input: &str) {}
 
 #[cfg(test)]
 mod tests {
@@ -243,13 +231,6 @@ mod tests {
             ###############
             "#
         };
-        part1(input);
-
-        // assert_eq!();
-    }
-
-    #[test]
-    fn test_part2() {
-        // assert_eq!();
+        solve(input);
     }
 }
