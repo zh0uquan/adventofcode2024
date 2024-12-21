@@ -3,7 +3,6 @@ use itertools::Itertools;
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
 use std::fmt::{Display, Formatter};
-use std::ops::{Index, IndexMut};
 
 fn main() {
     let input = include_str!("input.txt");
