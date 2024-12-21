@@ -13,6 +13,7 @@ enum Tile {
     Start,
     End,
     Wall,
+    #[allow(dead_code)]
     Char(char),
 }
 
@@ -171,15 +172,20 @@ fn solve(input: &str) -> (usize, usize) {
             *map.entry(c.2).or_default() += 1;
             map
         });
-    let part1 = counter
-        .iter()
-        .filter_map(|(&pico, &n)| {
-            if pico >= 100 {
-                return Some(n);
-            }
-            None
-        })
-        .sum();
+
+    let calculate_100 = |counter: HashMap<usize, usize>| {
+        counter
+            .iter()
+            .filter_map(|(&pico, &n)| {
+                if pico >= 100 {
+                    return Some(n);
+                }
+                None
+            })
+            .sum()
+    };
+
+    let part1 = calculate_100(counter);
 
     let mut cheats: HashMap<usize, usize> = HashMap::new();
     for (&pos1, &distance1) in distance.iter() {
@@ -201,8 +207,9 @@ fn solve(input: &str) -> (usize, usize) {
         }
         println!("There are {value} cheats that save {key} picoseconds.")
     }
+    let part2 = calculate_100(cheats);
 
-    (part1, 1234)
+    (part1, part2)
 }
 
 #[cfg(test)]
