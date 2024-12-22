@@ -1,6 +1,11 @@
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 
+pub type Coord = (usize, usize);
+pub type Direction = (isize, isize);
+
+pub const DIRECTIONS: [(isize, isize); 4] = [(1, 0), (0, 1), (-1, 0), (0, -1)];
+
 #[derive(Clone)]
 pub struct Matrix<T> {
     pub matrix: Vec<Vec<T>>,
@@ -32,9 +37,28 @@ impl<T: Clone + Default> Matrix<T> {
         }
     }
 
-    /// Checks if the given row and column are within bounds.
     pub fn in_bounds(&self, row: usize, col: usize) -> bool {
         row < self.height && col < self.width
+    }
+
+    pub fn in_bounds_isize(&self, row: isize, col: isize) -> bool {
+        row >= 0
+            && col >= 0
+            && (row as usize) < self.height
+            && (col as usize) < self.width
+    }
+
+    pub fn get_coord_neighbours(&self, pos: Coord) -> Vec<(Coord, Direction)> {
+        DIRECTIONS
+            .iter()
+            .filter_map(|&(di, dj)| {
+                let (ni, nj) = (pos.0 as isize + di, pos.1 as isize + dj);
+                if self.in_bounds_isize(ni, nj) {
+                    return Some(((ni as usize, nj as usize), (di, dj)));
+                }
+                None
+            })
+            .collect()
     }
 
     pub fn find(&self, value: &T) -> Option<(usize, usize)>
