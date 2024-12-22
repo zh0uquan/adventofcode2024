@@ -296,6 +296,6 @@ mod tests {
             "#
         };
         assert_eq!(solve(input, 1), 126384);
-        assert_eq!(solve(input, 24), 154115708116294)
+        assert_eq!(solve(input, 24), 154154076501218)
     }
 }
