@@ -1,7 +1,7 @@
-use std::arch::aarch64::vabsq_f32;
-use std::collections::{HashMap};
 use cached::proc_macro::cached;
 use itertools::Itertools;
+
+use std::collections::HashMap;
 
 fn main() {
     let input = include_str!("input.txt");
@@ -40,7 +40,7 @@ fn evolve_secret(mut secret: i64) -> i64 {
 #[cached]
 fn evolve_n_times(secret: i64, n: usize) -> i64 {
     if n == 0 {
-        return secret
+        return secret;
     }
     return evolve_n_times(evolve_secret(secret), n - 1);
 }
@@ -50,7 +50,10 @@ fn take_last(secret: i64) -> i64 {
 }
 
 fn part1(input: &str) -> i64 {
-    input.lines().map(|line| evolve_n_times(line.parse::<i64>().unwrap(), 2000)).sum()
+    input
+        .lines()
+        .map(|line| evolve_n_times(line.parse::<i64>().unwrap(), 2000))
+        .sum()
 }
 
 fn part2(input: &str, n: usize) -> i64 {
@@ -65,35 +68,30 @@ fn part2(input: &str, n: usize) -> i64 {
             .into_iter()
             .map(take_last)
             .collect();
-        let changes: Vec<i64> = prices.iter()
-            .tuple_windows()
-            .map(|(a, b)| b - a)
-            .collect();
-        let sequences = (0..changes.len() - 3).fold(
-            HashMap::new(),
-            |mut sequences, i| {
-                let key = format!("{:?}", &changes[i..i+4]);
+        let changes: Vec<i64> =
+            prices.iter().tuple_windows().map(|(a, b)| b - a).collect();
+        let sequences =
+            (0..changes.len() - 3).fold(HashMap::new(), |mut sequences, i| {
+                let key = format!("{:?}", &changes[i..i + 4]);
                 if sequences.contains_key(&key) {
                     return sequences;
                 }
-                sequences.insert(key, prices[i+4]);
+                sequences.insert(key, prices[i + 4]);
                 sequences
-            }
-        );
+            });
         total.push(sequences);
         // println!("{:?}", sequences)
     }
     println!("finished sequences!");
-    let counter: HashMap<String, i64> = total.iter().fold(
-        HashMap::new(), |mut counter, sequences| {
+    let counter: HashMap<String, i64> =
+        total.iter().fold(HashMap::new(), |mut counter, sequences| {
             for (key, value) in sequences {
                 *counter.entry(key.clone()).or_default() += value;
             }
             counter
-        }
-    );
+        });
     // println!("{:?}", counter);
-    
+
     *counter.values().max().unwrap()
 }
 
@@ -145,11 +143,9 @@ mod tests {
         assert_eq!(part1(input), 37327623);
     }
 
-
     #[test]
     fn test_part2() {
         assert_eq!(part2("123", 10), 6);
-
 
         let input = indoc! {
             r#"
@@ -160,6 +156,5 @@ mod tests {
             "#
         };
         assert_eq!(part2(input, 2000), 23);
-
     }
 }

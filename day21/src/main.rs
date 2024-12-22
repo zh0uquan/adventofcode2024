@@ -36,7 +36,6 @@ struct Solver {
 }
 
 impl Solver {
-    
     fn get_min_move(&self, possible_moves: Vec<Vec<Direction>>) -> String {
         let possible_ch_moves: Vec<String> = possible_moves
             .iter()
@@ -85,10 +84,9 @@ impl Solver {
             return "<v".to_string();
         }
         if input == "vA" {
-            return "^>".to_string()
+            return "^>".to_string();
         }
-        
-        
+
         let coord_a = keypad.get_pos(input.as_bytes()[0] as char).unwrap();
         let coord_b = keypad.get_pos(input.as_bytes()[1] as char).unwrap();
         let possible_moves = keypad.find_shortest_moves(coord_a, coord_b);
@@ -103,9 +101,7 @@ impl Solver {
         let result: String = controls
             .into_iter()
             .tuple_windows()
-            .map(|(a, b)| {
-                self._interpret_two_pos(&format!("{a}{b}"), keypad)
-            })
+            .map(|(a, b)| self._interpret_two_pos(&format!("{a}{b}"), keypad))
             .map(|mut moves| {
                 moves.push(CONFIRM);
                 moves
@@ -203,16 +199,15 @@ fn solve(input: &str, n: usize) -> usize {
         numeric_keypad,
         control_keypad,
     };
-    #[cached(key = "String", convert = r#"{ format!("{} {}", input, times) }"#)]
-    fn recursion(
-        input: &str,
-        times: usize,
-        solver: &Solver,
-    ) -> usize {
+    #[cached(
+        key = "String",
+        convert = r#"{ format!("{} {}", input, times) }"#
+    )]
+    fn recursion(input: &str, times: usize, solver: &Solver) -> usize {
         let mut total = 0;
         let input = if times != 0 {
             format!("{}{}", CONFIRM, input)
-        } else { 
+        } else {
             input.to_string()
         };
         if times == 0 {
@@ -224,8 +219,7 @@ fn solve(input: &str, n: usize) -> usize {
             let go = &input[index..=index + 1];
             let go = &format!(
                 "{}{}",
-                &solver
-                    ._interpret_two_pos(go, &solver.control_keypad),
+                &solver._interpret_two_pos(go, &solver.control_keypad),
                 CONFIRM
             );
             println!("input: {input}, times: {times}, go: {go}");
@@ -233,12 +227,10 @@ fn solve(input: &str, n: usize) -> usize {
         }
         total
     }
-    
+
     let nums: Vec<usize> = input
         .lines()
-        .map(|line| {
-            recursion(&solver.interpret_code(line), n, &solver)
-        })
+        .map(|line| recursion(&solver.interpret_code(line), n, &solver))
         .collect();
     println!("{:?}", nums);
     input
@@ -255,7 +247,6 @@ fn solve(input: &str, n: usize) -> usize {
         .sum()
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -270,17 +261,14 @@ mod tests {
             control_keypad,
         };
 
-        assert_eq!(
-            solver.interpret_code("029A"),
-            "<A^A>^^AvvvA"
-        );
+        assert_eq!(solver.interpret_code("029A"), "<A^A>^^AvvvA");
         assert_eq!(
             solver.interpret_control("<A^A>^^AvvvA"),
-            "v<<A>>^A<A>AvA<^AA>A<vAAA>^A"
+            "v<<A>>^A<A>AvA<^AA>A<vAAA^>A"
         );
         assert_eq!(
             solver.interpret_control("v<<A>>^A<A>AvA<^AA>A<vAAA>^A"),
-            "<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A"
+            "<vA<AA>>^AvAA<^A>Av<<A>>^AvA^A<vA^>Av<<A>^A>AAvA^Av<<A>A^>AAAvA<^A>A"
         );
     }
 
