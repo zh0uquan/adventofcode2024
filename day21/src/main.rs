@@ -70,6 +70,25 @@ impl Solver {
         input: &str,
         keypad: &Matrix<char>,
     ) -> String {
+        // from '>' to '^'  :  only possible way is <^A
+        // from '^' to '>'  :  only possible way is v>A
+        // from 'A' to 'v'  :  only possible way is <vA
+        // from 'v' to 'A'  :  only possible way is ^>A
+        // hardcode way to do this, very bad way!!!
+        if input == ">^" {
+            return "<^".to_string();
+        }
+        if input == "^>" {
+            return "v>".to_string();
+        }
+        if input == "Av" {
+            return "<v".to_string();
+        }
+        if input == "vA" {
+            return "^>".to_string()
+        }
+        
+        
         let coord_a = keypad.get_pos(input.as_bytes()[0] as char).unwrap();
         let coord_b = keypad.get_pos(input.as_bytes()[1] as char).unwrap();
         let possible_moves = keypad.find_shortest_moves(coord_a, coord_b);
