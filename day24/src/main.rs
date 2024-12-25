@@ -11,7 +11,7 @@ use std::io::Write;
 
 fn main() {
     let input = include_str!("input.txt");
-    // println!("{:?}", part1(input));
+    println!("{:?}", part1(input));
     println!("{:?}", part2(input));
 }
 
