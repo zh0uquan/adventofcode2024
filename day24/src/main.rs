@@ -1,3 +1,4 @@
+use indoc::formatdoc;
 use itertools::Itertools;
 use nom::bytes::complete::tag;
 use nom::character::complete::u8 as nom_u8;
@@ -5,6 +6,8 @@ use nom::character::complete::{alphanumeric1, space1};
 use nom::sequence::{preceded, separated_pair, tuple};
 use nom::IResult;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::Write;
 
 fn main() {
     let input = include_str!("input.txt");
@@ -71,7 +74,8 @@ fn part1(input: &str) -> usize {
 
 fn part2(input: &str) {
     let (values, wires) = input.split("\n\n").collect_tuple().unwrap();
-    let mut values: HashMap<&str, u8> = values
+
+    let values: HashMap<&str, u8> = values
         .lines()
         .map(|line| parse_value(line).unwrap().1)
         .collect();
@@ -79,22 +83,60 @@ fn part2(input: &str) {
     let initals: Vec<&str> =
         values.keys().copied().sorted_by(|a, b| b.cmp(a)).collect();
 
-    let mut wires: HashMap<(&str, &str), &str> = wires
+    let graph_content = wires
         .lines()
         .map(|line| parse_wire(line).unwrap().1)
-        .map(|((a, _, b), c)| {
-            let v: Vec<&str> = vec![a, b].into_iter().sorted().collect();
-            ((v[0], v[1]), c)
-        })
-        .collect();
+        .fold(String::new(), |mut s, ((a, op, b), c)| {
+            let c = match c {
+                "rmj" => "z23",
+                "z23" => "rmj",
+                "z17" => "cmv",
+                "cmv" => "z17",
+                "z30" => "rdg",
+                "rdg" => "z30",
+                "btb" => "mwp",
+                "mwp" => "btb",
+                _ => c,
+            };
+            let color = match op {
+                "AND" => "blue",
+                "XOR" => "read",
+                "OR" => "green",
+                _ => panic!("disco!"),
+            };
+            s.push_str(&format!(
+                "\"{}\" -> \"{}\" [label=\"{}\", color=\"{}\"]\n",
+                a, c, op, color
+            ));
+            s.push_str(&format!(
+                "\"{}\" -> \"{}\" [label=\"{}\", color=\"{}\"]\n",
+                b, c, op, color
+            ));
+            s
+        });
+    let indented_graph_content = graph_content
+        .lines()
+        .map(|line| format!("{}{}", " ".repeat(8), line))
+        .collect::<Vec<String>>()
+        .join("\n");
 
-    for (x, y) in initals
-        .iter()
-        .filter(|k| k.starts_with('x'))
-        .zip(initals.iter().filter(|k| k.starts_with('y')))
-    {
-        println!("{x} + {y} => {}", wires.get(&(x, y)).unwrap())
-    }
+    let graph = formatdoc! {
+        "
+        digraph LogicalGraph {{
+            // Define graph properties
+            graph [rankdir=LR];
+            node [shape=ellipse, style=filled, fillcolor=lightblue];
+            {graph_content}
+        }}
+        ", graph_content=indented_graph_content
+    };
+
+    let mut file =
+        File::create("day24/graph.dot").expect("Unable to create file");
+    file.write_all(graph.as_bytes())
+        .expect("Unable to write to file");
+    // pattern is:
+    // for "Z" node => 2 black => one is from two green line and another from X AND Y
 }
 
 #[cfg(test)]
